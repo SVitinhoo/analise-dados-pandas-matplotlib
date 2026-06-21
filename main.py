@@ -7,7 +7,10 @@ from datetime import datetime
 
 DIR_HOME = Path(__file__).parent
 DIR_CSV = DIR_HOME / "csv"
-FILE = DIR_HOME / "final.csv"
+DIR_RESULTADO = DIR_HOME / "resultado"
+FILE = DIR_RESULTADO  / "final.csv"
+
+DIR_RESULTADO.mkdir(parents=True, exist_ok=True)
 
 def tempo_medio(data_i, data_f):
     data_inicio = datetime.strptime(data_i.strip(), "%Y-%m-%d")
@@ -23,7 +26,7 @@ if not FILE.exists():
         lista.append(file)
         
     df = concat(lista)
-    DataFrame.to_csv(df, "final.csv", sep=";", index=False)
+    DataFrame.to_csv(df, FILE, sep=";", index=False)
     
 
 df = read_csv(FILE, sep=";", low_memory=False)
@@ -36,7 +39,7 @@ qtd_area = df_empresas_unicas["Grande Área do Conhecimento"].value_counts().cop
 qtd_area.rename("Quantidade", inplace=True)
 qtd_area.sort_values(ascending=False, inplace=True)
 qtd_area.index.rename("Área do Conhecimento", inplace=True)
-qtd_area.to_csv("resultado/area_conhecimento.csv", sep=";")
+qtd_area.to_csv(DIR_RESULTADO / "area_conhecimento.csv", sep=";")
 
 
 # Área do Conhecimento = Subárea do Conhecimento
@@ -44,7 +47,7 @@ qtd_subarea = df_empresas_unicas["Área do Conhecimento"].value_counts().copy()
 qtd_subarea.rename("Quantidade", inplace=True)
 qtd_subarea.sort_values(ascending=False, inplace=True)
 qtd_subarea.index.rename("Subárea do Conhecimento", inplace=True)
-qtd_subarea.to_csv("resultado/subarea_conhecimento.csv", sep=";")
+qtd_subarea.to_csv(DIR_RESULTADO / "subarea_conhecimento.csv", sep=";")
 
 
 # alguns dados vieram concatenados
@@ -56,14 +59,14 @@ linhas_concat = df_cidades['Cidade Instituição'].str.contains(padrao_concat, r
 df_cidades_limpo = df_cidades[~linhas_concat]
 qtd_cidade = df_cidades_limpo["Cidade Instituição"].value_counts().reset_index()
 qtd_cidade.rename(columns={"count": "Quantidade", "Cidade Instituição": "Cidade"}, inplace=True)
-qtd_cidade.to_csv("resultado/empresas_por_cidade.csv", sep=";", index=False)
+qtd_cidade.to_csv(DIR_RESULTADO / "empresas_por_cidade.csv", sep=";", index=False)
 
 
 
 df_rp = df_empresas_unicas[df_empresas_unicas["Cidade Instituição"] == "Ribeirão Preto"].copy()
 qtd_area_rp = df_rp[["Instituição", "Grande Área do Conhecimento"]].fillna("Interdisciplinar")
 qtd_area_rp.rename(inplace=True, columns={"Grande Área do Conhecimento": "Área do Conhecimento", "Instituição": "Empresa"})
-qtd_area_rp.to_csv("resultado/empresas_em_rp.csv", sep=";", index=False)
+qtd_area_rp.to_csv(DIR_RESULTADO / "empresas_em_rp.csv", sep=";", index=False)
 
 
 
@@ -80,7 +83,7 @@ Qtd_Materias=("Tempo", "count")
 
 # O tempo médio é em meses
 df_media_por_area.rename(inplace=True, columns={"Grande Área do Conhecimento": "Área do Conhecimento", "Média_Tempo": "Tempo médio em meses", "Qtd_Materias": "Quantidade"})
-df_media_por_area.to_csv("resultado/tempo_medio.csv", sep=";", index=False, decimal=",")
+df_media_por_area.to_csv(DIR_RESULTADO / "tempo_medio.csv", sep=";", index=False, decimal=",")
 
 # Criando os gráficos
 # 1º 
@@ -94,7 +97,7 @@ plt.xticks(fontsize=10)
 plt.gca().invert_yaxis()
 plt.grid(True, axis='x', linestyle='--', alpha=0.5)
 plt.tight_layout()
-plt.savefig("resultado/area_conhecimento.jpg", dpi = 150)
+plt.savefig(DIR_RESULTADO/ "area_conhecimento.jpg", dpi = 150)
 plt.close()
 
 qtd_subarea = qtd_subarea.iloc[:10]
@@ -107,7 +110,7 @@ plt.xticks(fontsize=10)
 plt.gca().invert_yaxis()
 plt.grid(True, axis='x', linestyle='--', alpha=0.5)
 plt.tight_layout()
-plt.savefig("resultado/subarea_conhecimento.jpg", dpi = 150)
+plt.savefig(DIR_RESULTADO/ "subarea_conhecimento.jpg", dpi = 150)
 plt.close()
 
 # 2º
@@ -120,7 +123,7 @@ plt.xticks(rotation=45, ha="right", fontsize=10)
 plt.yticks(fontsize = 10)
 plt.grid(True, axis='y', linestyle='--', alpha=0.5)
 plt.tight_layout()
-plt.savefig("resultado/empresas_por_cidade.jpg", dpi = 150)
+plt.savefig(DIR_RESULTADO/ "empresas_por_cidade.jpg", dpi = 150)
 plt.close()
 
 # 3º -> não precisa de grafico
@@ -147,7 +150,7 @@ for i, linha in df_media_por_area.reset_index().iterrows():
     )
 
 plt.tight_layout()
-plt.savefig("resultado/tempo_medio.jpg", dpi=150)
+plt.savefig(DIR_RESULTADO / "tempo_medio.jpg", dpi=150)
 plt.close()
 
 
